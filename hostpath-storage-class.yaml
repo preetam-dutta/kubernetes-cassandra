@@ -1,0 +1,21 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: sc-node-data
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+
+---
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: sc-node-log
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer

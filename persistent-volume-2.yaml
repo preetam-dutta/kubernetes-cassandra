@@ -1,0 +1,71 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: hostpath-pv-n3-data
+spec:
+  storageClassName: sc-node-data
+  capacity:
+    storage: 4Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: data-cassandra-2 # docker volume with same name needs to be created
+    type: DirectoryOrCreate
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: node-data-cassandra-2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+  storageClassName: sc-node-data
+  volumeName: hostpath-pv-n3-data
+
+---
+
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: hostpath-pv-n3-log
+spec:
+  storageClassName: sc-node-log
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce # the volume can be mounted as read-write by a single node
+  hostPath:
+    path: log-cassandra-2 # docker volume with same name needs to be created
+    type: DirectoryOrCreate
+
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: node-log-cassandra-2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: sc-node-log
+  volumeName: hostpath-pv-n3-log

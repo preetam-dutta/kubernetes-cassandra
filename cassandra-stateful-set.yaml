@@ -1,0 +1,112 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: cassandra
+spec:
+  ports:
+    - port: 9042
+      name: "cassandra-cluster"
+  clusterIP: None
+  selector:
+    app: cassandra
+
+---
+
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: cassandra
+    env: dev
+  name: cassandra
+spec:
+  selector:
+    matchLabels:
+      app: cassandra # has to match .spec.template.metadata.labels
+      env: dev
+  serviceName: "cassandra"
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: cassandra # has to match .spec.selector.matchLabels
+        env: dev
+    spec:
+      terminationGracePeriodSeconds: 15 # how much time the pod to be in 'terminating' state before killing it
+      containers:
+        - name: cassandra
+          image: preetamdutta/cassandra:latest
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "768Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
+          volumeMounts:
+            - name: "node-data"
+              mountPath: "/var/lib/cassandra/"
+            - name: "node-log"
+              mountPath: "/var/log/cassandra/"
+          ports:
+            - containerPort: 7000
+              name: "node-com"
+              protocol: TCP
+            - containerPort: 7001
+              name: "node-com-tls"
+              protocol: TCP
+            - containerPort: 7199
+              name: "jmx"
+              protocol: TCP
+            - containerPort: 9042
+              name: "cql"
+              protocol: TCP
+            - containerPort: 9160
+              name: "thrift"
+              protocol: TCP
+          # livenessProbe: Indicates whether the Container is running. If the liveness probe fails, the kubelet kills the Container, and the Container is subjected to its restart policy. If a Container does not provide a liveness probe, the default state is Success
+          livenessProbe:
+            initialDelaySeconds: 45 # wait time before checking the liveness
+            timeoutSeconds: 5 # how much to wait if liveness probe doesnt respond
+            periodSeconds: 15 # repeat interval
+            exec:
+              command:
+                - liveness.sh
+          # readinessProbe: Indicates whether the Container is ready to service requests. If the readiness probe fails, the endpoints controller removes the Pod’s IP address from the endpoints of all Services that match the Pod. The default state of readiness before the initial delay is Failure. If a Container does not provide a readiness probe, the default state is Success
+          readinessProbe:
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 15
+            tcpSocket:
+              port: 9042
+          env:
+          - name: seed
+            value: cassandra-0.cassandra.default.svc.cluster.local
+          - name: clusterName
+            value: "preet-cluster"
+          - name: maxHeapSize
+            value: "768"
+          - name: heapNewSize
+            value: "100"
+  volumeClaimTemplates:
+    - metadata:
+        name: "node-data"
+      spec:
+        storageClassName: "sc-node-data"
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 4Gi
+    - metadata:
+        name: "node-log"
+      spec:
+        storageClassName: "sc-node-log"
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
