@@ -4,7 +4,7 @@ metadata:
   labels:
     app: cassandra
     env: dev
-  name: hostpath-pv-n1-data
+  name: pv-n1-data
 spec:
   storageClassName: sc-node-data
   capacity:
@@ -31,7 +31,7 @@ spec:
     requests:
       storage: 4Gi
   storageClassName: sc-node-data
-  volumeName: hostpath-pv-n1-data
+  volumeName: pv-n1-data
 
 ---
 
@@ -41,7 +41,7 @@ metadata:
   labels:
     app: cassandra
     env: dev
-  name: hostpath-pv-n1-log
+  name: pv-n1-log
 spec:
   storageClassName: sc-node-log
   capacity:
@@ -68,5 +68,5 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: sc-node-log
-  volumeName: hostpath-pv-n1-log
+  volumeName: pv-n1-log
 

@@ -4,7 +4,7 @@ metadata:
   labels:
     app: cassandra
     env: dev
-  name: hostpath-pv-n3-data
+  name: pv-n2-data
 spec:
   storageClassName: sc-node-data
   capacity:
@@ -12,7 +12,7 @@ spec:
   accessModes:
     - ReadWriteOnce
   hostPath:
-    path: data-cassandra-2 # docker volume with same name needs to be created
+    path: data-cassandra-1 # docker volume with same name needs to be created
     type: DirectoryOrCreate
 
 ---
@@ -23,7 +23,7 @@ metadata:
   labels:
     app: cassandra
     env: dev
-  name: node-data-cassandra-2
+  name: node-data-cassandra-1
 spec:
   accessModes:
     - ReadWriteOnce
@@ -31,7 +31,8 @@ spec:
     requests:
       storage: 4Gi
   storageClassName: sc-node-data
-  volumeName: hostpath-pv-n3-data
+  volumeName: pv-n2-data
+
 
 ---
 
@@ -41,7 +42,7 @@ metadata:
   labels:
     app: cassandra
     env: dev
-  name: hostpath-pv-n3-log
+  name: pv-n2-log
 spec:
   storageClassName: sc-node-log
   capacity:
@@ -49,7 +50,7 @@ spec:
   accessModes:
     - ReadWriteOnce # the volume can be mounted as read-write by a single node
   hostPath:
-    path: log-cassandra-2 # docker volume with same name needs to be created
+    path: log-cassandra-1 # docker volume with same name needs to be created
     type: DirectoryOrCreate
 
 ---
@@ -60,7 +61,7 @@ metadata:
   labels:
     app: cassandra
     env: dev
-  name: node-log-cassandra-2
+  name: node-log-cassandra-1
 spec:
   accessModes:
     - ReadWriteOnce
@@ -68,4 +69,5 @@ spec:
     requests:
       storage: 1Gi
   storageClassName: sc-node-log
-  volumeName: hostpath-pv-n3-log
+  volumeName: pv-n2-log
+
