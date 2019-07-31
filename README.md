@@ -1,69 +1,87 @@
 
 About
------
-Creates a stateful-set of 3 nodes with docker volume as **HOSTPATH** or **AWS EBS**
+=====
+This project demonstrate Cassandra cluster implementation via Docker and Kubernetes either on
+1. **For Local Development**: On your Docker Desktop setup with Kubernetes enabled
+2. **For Cloud Deployment**: On AWS having Kubernetes enabled.
 
-Only the **Storage class** needs to be changed for hostpath or awsebs, rest of the steps remains same
+Deploys a stateful-set of 3 nodes with docker volume as **HOSTPATH** for local or **AWS EBS** for Cloud (AWS only for now)
 
-Create Docker Volume as hostPath mount for Host Path
-----------------------------------------------------
-**SKIP THIS STEP FOR AWS EBS**
+With respect to Kubernetes configuration, only the **Storage class** (i.e. the k8/storage-class-local and k8/storage-class-cloud) changes to switch between the local and cloud deployment.
 
-Create the below volumes, and ensure the PersistenVolume has the same as *path* param in *hostPath*
+Prerequisite
+============
 
-  ```bash
-  docker volume create data-cassandra-0
-  docker volume create log-cassandra-0
-  
-  docker volume create data-cassandra-1
-  docker volume create log-cassandra-1
-  
-  docker volume create data-cassandra-2
-  docker volume create log-cassandra-2
-  ```
-
-Create the storage-class
-------------------------
-Create set of storage class for data and log
-
-**For HOSTPATH**
-  ```bash
-  kubectl apply -f hostpath-storage-class.yaml
-  ```
-
-**For AWS EBS**
-  ```bash
-  kubectl apply -f awsebs-storage-class.yaml
-  ```
-
-Create Persistent Volume and respective Persistent Volume Claim
-------------------------
-- Note: the status says *available* and once the PVC is bind, the status changes to *bound*
-- Note: the *labels* the *storageClass* and the *labels* have been used to connect PVs to correct PVCs
-
-The PVC is optional step, when deploying the statefulSet kuberentes automatically created PVC.
-However to ensure I control the ordering and the mapping of the PVC and the stateful, creating it manually
-
-  ```bash
-  kubectl apply -f persistent-volume-0.yaml
-  kubectl apply -f persistent-volume-1.yaml
-  kubectl apply -f persistent-volume-2.yaml
-  ```
-  
-  ```bash
-  kubectl get sc,pv,pvc,all
-  ```
+For Local Setup
+---------------
+1. Docker Desktop with Kubernetes enabled
+2. Docker Desktop's VM should have atleast 2 core CPU
+3. Docker Desktop's should have atleast 3 GM spare RAM
+4. Docker Desktop's volume should have atleast 15GB spare disk capacity
 
 
-Start and verify Pod
---------------------
-
-  ```bash
-  kubectl apply -f cassandra-stateful-set.yaml
-  ```
-
-  ```bash
-  kubectl get sc,pv,pvc,all
-  ```
+For Cloud Setup
+---------------
+1. You have Docker and Kubernetes setup on your development machine (i.e. docker and kubectl commands are available on terminal)
+1. You already have AWS EC2 up and running
+2. Minimum configuration is 4 nodes of T3.small EC2 nodes
+3. You have AWS API already setup and configured to run from your terminal
 
 
+Project Execution
+=================
+
+1. Download the project
+2. Go to the project home (lets assume its $PRJ_HOME)
+
+For Local Cluster Creation
+--------------------------
+1. Ensure the kube config is pointing to the Docker Desktop (i.e. ~/.kube/config)
+2. Execute the below command to create the Cassandra cluster on your development machine (laptop/desktop)
+    ```bash
+    cd $PRJ_HOME/bin
+    ./create-casssandra-cluster.sh
+    ```
+3. Once the above command is completed, the Cluster nodes will be coming up. You can check the status of them via the below command
+    ```bash
+    kubectl get pod --selector="app=cassandra,env=dev"
+    ```
+4. Once all the three nodes are up and running, use the below command to check the status or logon to CQLSH
+    ```bash
+    kubectl exec -it cassandra-0 nodetool status
+    kubectl exec -it cassandra-0 cqlsh
+    ```
+
+For Local Cluster Deletion
+--------------------------
+1. When you are done with the Cassandra Cluster, use the below command to destroy the cluster
+    ```bash
+    cd $PRJ_HOME/bin
+    ./delete-cassandra-cluster.sh
+    ```
+
+For Cloud(AWS) Cluster Creation
+--------------------------
+1. Ensure the kube config is pointing to the AWS (i.e. ~/.kube/config)
+2. Execute the below command to create the Cassandra cluster on your development machine (laptop/desktop)
+    ```bash
+    cd $PRJ_HOME/bin
+    ./create-casssandra-cluster.sh -c
+    ```
+3. Once the above command is completed, the Cluster nodes will be coming up. You can check the status of them via the below command
+    ```bash
+    kubectl get pod --selector="app=cassandra,env=dev"
+    ```
+4. Once all the three nodes are up and running, use the below command to check the status or logon to CQLSH
+    ```bash
+    kubectl exec -it cassandra-0 nodetool status
+    kubectl exec -it cassandra-0 cqlsh
+    ```
+
+For Cloud(AWS) Cluster Deletion
+--------------------------
+1. When you are done with the Cassandra Cluster, use the below command to destroy the cluster
+    ```bash
+    cd $PRJ_HOME/bin
+    ./delete-cassandra-cluster.sh
+    ```
