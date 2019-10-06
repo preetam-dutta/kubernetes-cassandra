@@ -13,7 +13,7 @@ During the deployment all the steps remains same except the definition of **Stor
 Prerequisite
 ============
 
-For Local Setup
+For Local Setup (Docker Desktop)
 ---------------
 1. Docker Desktop with Kubernetes enabled
 2. Docker Desktop's VM should have atleast 2 core CPU
@@ -21,8 +21,8 @@ For Local Setup
 4. Docker Desktop's volume should have atleast 15GB spare disk capacity
 
 
-For Cloud Setup
----------------
+For Cloud Setup (AWS)
+---------------------
 1. You have Docker and Kubernetes setup on your development machine (i.e. docker and kubectl commands are available on terminal)
 1. You already have AWS EC2 up and running
 2. Minimum configuration is 4 nodes of T3.small EC2 nodes
@@ -35,26 +35,25 @@ Project Execution
 1. Download the project
 2. Go to the project home (lets assume its $PRJ_HOME)
 
-For Local Cluster Creation
---------------------------
-1. Ensure the kube config is pointing to the Docker Desktop (i.e. ~/.kube/config)
-2. Execute the below command to create the Cassandra cluster on your development machine (laptop/desktop)
+For Local Cluster Creation (Docker Desktop)
+-------------------------------------------
+1. Execute the below command to create the Cassandra cluster on your development machine (laptop/desktop)
     ```bash
     cd $PRJ_HOME/bin
     ./create-casssandra-cluster.sh
     ```
-3. Once the above command is completed, the Cluster nodes will be coming up. You can check the status of them via the below command
+2. Once the above command is completed, the Cluster nodes will be coming up. You can check the status of them via the below command
     ```bash
     kubectl get pod --selector="app=cassandra,env=dev"
     ```
-4. Once all the three nodes are up and running, use the below command to check the status or logon to CQLSH
+3. Once all the three nodes are up and running, use the below command to check the status or logon to CQLSH
     ```bash
     kubectl exec -it cassandra-0 nodetool status
     kubectl exec -it cassandra-0 cqlsh
     ```
 
-For Local Cluster Deletion
---------------------------
+For Local Cluster Deletion (Docker Desktop)
+-------------------------------------------
 1. When you are done with the Cassandra Cluster, use the below command to destroy the cluster
     ```bash
     cd $PRJ_HOME/bin

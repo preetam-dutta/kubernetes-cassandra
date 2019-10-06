@@ -9,7 +9,9 @@ spec:
   ports:
     - port: 9042
       name: "cassandra-cluster"
-  clusterIP: None
+# Headless service NOT be required, let the client plug in to the cluster IP,
+# and k8 manages its endpoints/pods via the statefull-set
+# clusterIP: None
   selector:
     app: cassandra
 
